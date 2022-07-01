@@ -1,6 +1,7 @@
 package it.alexs.photocommunityuser.bean
 
 import it.alexs.photocommunityuser.dtos.UserCreateDto
+import it.alexs.photocommunityuser.dtos.UserUpdateDto
 import it.alexs.photocommunityuser.entities.User
 import it.alexs.photocommunityuser.repository.UserRepository
 import it.alexs.photocommunityuser.utils.assertOrConflict
@@ -56,5 +57,30 @@ class UserService(
         repository.saveAndFlush(user)
 
         return user
+    }
+
+    @Transactional
+    fun updateUser(id: Long, user: UserUpdateDto) {
+        val maybeUser = repository.findById(id)
+
+        assertOrNotFound(maybeUser.isPresent, "No user found for ID $id")
+
+        val userUpdate = maybeUser.get()
+
+        if(userUpdate.email != user.email) {
+            val maybeUserFromEmail = repository.findByEmail(email = userUpdate.email)
+
+            assertOrConflict(!maybeUserFromEmail.isPresent, "User with email '${user.email}' already exists")
+        }
+
+        userUpdate.apply {
+            firstName = user.firstName
+            lastName = user.lastName
+            birth = LocalDate.parse(user.birth)
+            email = user.email
+            timestampModified = OffsetDateTime.now()
+        }
+
+        repository.saveAndFlush(userUpdate)
     }
 }

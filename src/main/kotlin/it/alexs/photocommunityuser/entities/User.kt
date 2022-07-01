@@ -1,7 +1,5 @@
 package it.alexs.photocommunityuser.entities
 
-import net.bytebuddy.implementation.bind.annotation.Empty
-import org.springframework.format.annotation.DateTimeFormat
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import javax.persistence.*
@@ -18,26 +16,26 @@ import javax.validation.constraints.Past
 class User(
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long,
+    var id: Long,
 
     @NotEmpty
-    val email: String,
+    var email: String,
 
     @NotEmpty
-    val firstName: String,
+    var firstName: String,
 
     @NotEmpty
-    val lastName: String,
+    var lastName: String,
 
     @NotEmpty
-    val password: String,
+    var password: String,
 
     @Past
-    val birth: LocalDate,
+    var birth: LocalDate,
 
     @FutureOrPresent
-    val timestampCreated: OffsetDateTime,
+    var timestampCreated: OffsetDateTime,
 
     @FutureOrPresent
-    val timestampModified: OffsetDateTime? = null
+    var timestampModified: OffsetDateTime? = null
 )

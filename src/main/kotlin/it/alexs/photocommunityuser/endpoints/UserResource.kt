@@ -3,6 +3,7 @@ package it.alexs.photocommunityuser.endpoints
 import it.alexs.photocommunityuser.bean.UserService
 import it.alexs.photocommunityuser.dtos.UserCreateDto
 import it.alexs.photocommunityuser.dtos.UserDto
+import it.alexs.photocommunityuser.dtos.UserUpdateDto
 import it.alexs.photocommunityuser.utils.criteria.RequestCriteria
 import it.alexs.photocommunityuser.utils.wrappers.ResponseWrapper
 import org.slf4j.LoggerFactory
@@ -35,6 +36,12 @@ class UserResource(
         val user = service.getByID(id)
 
         return UserDto.createFrom(user)
+    }
+
+    @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun updateUser(@PathVariable("id") id: Long, @RequestBody @Valid userUpdate: UserUpdateDto){
+        service.updateUser(id, userUpdate)
     }
 
     @PostMapping
