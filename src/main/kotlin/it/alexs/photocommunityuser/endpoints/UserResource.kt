@@ -50,4 +50,10 @@ class UserResource(
         return UserDto.createFrom(service.createUser(userCreate))
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    fun deleteUser(@PathVariable("id") id: Long) {
+        service.deleteUser(id)
+    }
+
 }

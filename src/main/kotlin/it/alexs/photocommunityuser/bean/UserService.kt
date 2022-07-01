@@ -83,4 +83,13 @@ class UserService(
 
         repository.saveAndFlush(userUpdate)
     }
+
+    @Transactional
+    fun deleteUser(id: Long) {
+        val maybeUser = repository.findById(id)
+
+        assertOrNotFound(maybeUser.isPresent, "No user found for ID $id")
+
+        repository.deleteById(id)
+    }
 }
