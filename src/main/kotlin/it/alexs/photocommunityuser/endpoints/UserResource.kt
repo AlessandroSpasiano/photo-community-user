@@ -1,9 +1,9 @@
 package it.alexs.photocommunityuser.endpoints
 
 import it.alexs.photocommunityuser.bean.UserService
-import it.alexs.photocommunityuser.dtos.UserCreateDto
-import it.alexs.photocommunityuser.dtos.UserDto
-import it.alexs.photocommunityuser.dtos.UserUpdateDto
+import it.alexs.photocommunityuser.config.JwtTokenUtil
+import it.alexs.photocommunityuser.dtos.*
+import it.alexs.photocommunityuser.utils.assertOrUnauthorized
 import it.alexs.photocommunityuser.utils.criteria.RequestCriteria
 import it.alexs.photocommunityuser.utils.specifications.UserSpecification
 import it.alexs.photocommunityuser.utils.wrappers.ResponseWrapper
@@ -16,10 +16,21 @@ import javax.validation.Valid
 @RestController
 @RequestMapping("/api/v1/user")
 class UserResource(
-    private val service: UserService
+    private val service: UserService,
+    private val jwtTokenUtil: JwtTokenUtil
 ) {
 
     private val logger = LoggerFactory.getLogger(UserResource::class.java)
+
+    @PostMapping("/authenticate")
+    fun authenticateUser(@RequestBody jwtBody: JWTRequest): JWTDto {
+        val userByUsername = service.getByEmail(jwtBody.username)
+
+        assertOrUnauthorized(userByUsername.password == jwtBody.password, "Unauthorized")
+        val at = jwtTokenUtil.generateToken(userByUsername)
+
+        return JWTDto(at)
+    }
 
     @GetMapping
     fun getAllUsers(@Valid requestCriteria: RequestCriteria = RequestCriteria()): ResponseWrapper<UserDto> {

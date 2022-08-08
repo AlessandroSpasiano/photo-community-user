@@ -39,7 +39,7 @@ class UserService(
     fun getByEmail(email: String): User {
         val maybeUser = repository.findByEmail(email)
 
-        assertOrNotFound(maybeUser.isEmpty, "No user found for ${email}")
+        assertOrNotFound(!maybeUser.isEmpty, "No user found for ${email}")
 
         return maybeUser.get()
     }
