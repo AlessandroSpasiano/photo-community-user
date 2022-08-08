@@ -5,6 +5,7 @@ import it.alexs.photocommunityuser.dtos.UserCreateDto
 import it.alexs.photocommunityuser.dtos.UserDto
 import it.alexs.photocommunityuser.dtos.UserUpdateDto
 import it.alexs.photocommunityuser.utils.criteria.RequestCriteria
+import it.alexs.photocommunityuser.utils.specifications.UserSpecification
 import it.alexs.photocommunityuser.utils.wrappers.ResponseWrapper
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
@@ -22,9 +23,15 @@ class UserResource(
 
     @GetMapping
     fun getAllUsers(@Valid requestCriteria: RequestCriteria = RequestCriteria()): ResponseWrapper<UserDto> {
+        val searchCriteria = requestCriteria.toSearchCriteria()
         val paging = PageRequest.of(requestCriteria.offset, requestCriteria.limit, requestCriteria.toSort())
 
-        val all = service.getAll(paging)
+        val all = if (searchCriteria == null) {
+            service.getAll(paging, null)
+        } else {
+            val spec = UserSpecification(searchCriteria)
+            service.getAll(paging, spec)
+        }
 
         val content = all.content.map { UserDto.createFrom(it) }
 

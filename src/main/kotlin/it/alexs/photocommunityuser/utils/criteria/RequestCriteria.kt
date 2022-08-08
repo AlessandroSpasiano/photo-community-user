@@ -4,6 +4,7 @@ import org.springframework.data.domain.Sort
 import javax.validation.constraints.Min
 
 data class RequestCriteria(
+    val search: String? = null,
     @get:Min(0)
     val offset: Int = 0,
     @get:Min(1)
@@ -11,6 +12,8 @@ data class RequestCriteria(
 
     val orderBy: String? = null
 ) {
+
+    private val QUERY = "(\\w+)([%=IN<>]+)(.+),".toRegex()
 
     fun toSort(): Sort {
         if (orderBy.isNullOrEmpty()) return Sort.unsorted()
@@ -36,5 +39,12 @@ data class RequestCriteria(
         }
 
         return sort
+    }
+
+    fun toSearchCriteria(): SearchCriteria? {
+        if (search.isNullOrEmpty()) return null
+
+        val find = QUERY.find("$search,")
+        return SearchCriteria(find!!.groupValues[1], find!!.groupValues[2], find!!.groupValues[3])
     }
 }

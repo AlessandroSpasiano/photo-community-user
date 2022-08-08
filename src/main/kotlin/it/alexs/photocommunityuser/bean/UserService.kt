@@ -8,6 +8,7 @@ import it.alexs.photocommunityuser.utils.assertOrConflict
 import it.alexs.photocommunityuser.utils.assertOrNotFound
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.OffsetDateTime
@@ -18,8 +19,13 @@ class UserService(
     private val repository: UserRepository
 ) {
 
-    fun getAll(pageable: Pageable): Page<User> {
-        return repository.findAll(pageable)
+
+    fun getAll(pageable: Pageable, spec: Specification<User>?): Page<User> {
+        return if (spec == null) {
+            repository.findAll(pageable)
+        } else {
+            repository.findAll(spec, pageable)
+        }
     }
 
     fun getByID(id: Long): User {
