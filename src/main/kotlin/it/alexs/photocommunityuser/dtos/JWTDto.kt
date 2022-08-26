@@ -1,5 +1,6 @@
 package it.alexs.photocommunityuser.dtos
 
 data class JWTDto(
-    val accessToken: String
+    val accessToken: String,
+    val refreshToken: String,
 )

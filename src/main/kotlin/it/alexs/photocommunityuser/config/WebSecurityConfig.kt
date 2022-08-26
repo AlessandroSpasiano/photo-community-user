@@ -40,7 +40,7 @@ class WebSecurityConfig(
     override fun configure(http: HttpSecurity) {
         http.csrf().disable()
             .authorizeHttpRequests()
-            .antMatchers("/authenticate", "/actuator")
+            .antMatchers("/authenticate", "/actuator", "/refresh")
             .permitAll()
             .antMatchers(HttpMethod.POST)
             .permitAll()
@@ -51,5 +51,7 @@ class WebSecurityConfig(
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 
         http.addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter::class.java)
+
+        http.cors()
     }
 }

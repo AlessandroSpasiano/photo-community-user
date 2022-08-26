@@ -46,9 +46,22 @@ class JwtTokenUtil : Serializable {
 	fun generateToken(userDetails: User): String {
 		val claims: Map<String, Any> = mapOf(
 			"name" to userDetails.firstName,
-			"surname" to userDetails.lastName
+			"surname" to userDetails.lastName,
+			"typ" to "Bearer"
 		)
-		return doGenerateToken(claims, userDetails.email)
+		return doGenerateToken(claims, userDetails.email, JWT_TOKEN_VALIDITY)
+	}
+
+	fun generateRefreshToken(userDetails: User): String {
+		val claims: Map<String, Any> = mapOf(
+			"name" to userDetails.firstName,
+			"surname" to userDetails.lastName,
+			"typ" to "Refresh"
+		)
+
+		val doGenerateToken = doGenerateToken(claims, userDetails.email, JWT_REFRESH_TOKEN_VALIDITY)
+
+		return doGenerateToken
 	}
 
 	//while creating the token -
@@ -56,9 +69,9 @@ class JwtTokenUtil : Serializable {
 	//2. Sign the JWT using the HS512 algorithm and secret key.
 	//3. According to JWS Compact Serialization(https://tools.ietf.org/html/draft-ietf-jose-json-web-signature-41#section-3.1)
 	//   compaction of the JWT to a URL-safe string
-	private fun doGenerateToken(claims: Map<String, Any>, subject: String): String {
+	private fun doGenerateToken(claims: Map<String, Any>, subject: String, tokenValidity: Long): String {
 		return Jwts.builder().setClaims(claims).setSubject(subject).setIssuedAt(Date(System.currentTimeMillis()))
-			.setExpiration(Date(System.currentTimeMillis() + JWT_TOKEN_VALIDITY * 1000))
+			.setExpiration(Date(System.currentTimeMillis() + tokenValidity * 1000))
 			.signWith(SignatureAlgorithm.HS512, secret).compact()
 	}
 
@@ -70,6 +83,7 @@ class JwtTokenUtil : Serializable {
 
 	companion object {
 		private const val serialVersionUID = -2550185165626007488L
-		const val JWT_TOKEN_VALIDITY = (5 * 60 * 60).toLong()
+		const val JWT_TOKEN_VALIDITY = (1 * 60 * 60).toLong() // One hour
+		const val JWT_REFRESH_TOKEN_VALIDITY = ((24 * 7) * 60 * 60).toLong() // 7 days
 	}
 }

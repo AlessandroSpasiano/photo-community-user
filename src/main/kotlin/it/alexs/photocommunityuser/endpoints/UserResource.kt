@@ -10,6 +10,7 @@ import it.alexs.photocommunityuser.utils.wrappers.ResponseWrapper
 import org.slf4j.LoggerFactory
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
+import org.springframework.security.core.userdetails.User
 import org.springframework.web.bind.annotation.*
 import javax.validation.Valid
 
@@ -28,8 +29,28 @@ class UserResource(
 
         assertOrUnauthorized(userByUsername.password == jwtBody.password, "Unauthorized")
         val at = jwtTokenUtil.generateToken(userByUsername)
+        val rt = jwtTokenUtil.generateRefreshToken(userByUsername)
 
-        return JWTDto(at)
+        return JWTDto(at, rt)
+    }
+
+    @PostMapping("/refresh")
+    fun refreshToken(@RequestBody jwtBody: JWTRefreshRequest): JWTDto {
+        val usernameFromToken = jwtTokenUtil.getUsernameFromToken(jwtBody.refreshToken)
+
+        val userByUsername = service.getByEmail(usernameFromToken)
+
+        val isValid = jwtTokenUtil.validateToken(
+            jwtBody.refreshToken,
+            User(userByUsername.email, userByUsername.password, emptyList())
+        )
+
+        assertOrUnauthorized(isValid, "Unauthorized")
+
+        val at = jwtTokenUtil.generateToken(userByUsername)
+        val rt = jwtTokenUtil.generateRefreshToken(userByUsername)
+
+        return JWTDto(at, rt)
     }
 
     @GetMapping
@@ -58,7 +79,7 @@ class UserResource(
 
     @PutMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    fun updateUser(@PathVariable("id") id: Long, @RequestBody @Valid userUpdate: UserUpdateDto){
+    fun updateUser(@PathVariable("id") id: Long, @RequestBody @Valid userUpdate: UserUpdateDto) {
         service.updateUser(id, userUpdate)
     }
 
