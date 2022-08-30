@@ -47,6 +47,7 @@ class JwtTokenUtil : Serializable {
 		val claims: Map<String, Any> = mapOf(
 			"name" to userDetails.firstName,
 			"surname" to userDetails.lastName,
+			"birthday" to userDetails.birth.toString(),
 			"typ" to "Bearer"
 		)
 		return doGenerateToken(claims, userDetails.email, JWT_TOKEN_VALIDITY)
@@ -56,6 +57,7 @@ class JwtTokenUtil : Serializable {
 		val claims: Map<String, Any> = mapOf(
 			"name" to userDetails.firstName,
 			"surname" to userDetails.lastName,
+			"birthday" to userDetails.birth.toString(),
 			"typ" to "Refresh"
 		)
 
